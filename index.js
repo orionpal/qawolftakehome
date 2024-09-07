@@ -41,7 +41,7 @@ export async function loadArticles(page, amount = desiredTestArticles, waitTime 
 
 export async function sortHackerNewsArticles(url = desiredTestURL) {
   // launch browser
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: true }); // Changed headless to true for github actions
   const context = await browser.newContext();
   const page = await context.newPage();
 
