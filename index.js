@@ -1,17 +1,19 @@
 // EDIT THIS FILE TO COMPLETE ASSIGNMENT QUESTION 1
 const { chromium } = require("playwright");
-// @ts-check
-const { test, expect } = require('@playwright/test');
 
-const desiredTestArticles = 100;
-const desiredTestURL = "https://news.ycombinator.com/newest"
+const desiredTestURL = process.env.DESIRED_TEST_URL;
+const desiredTestArticles = parseInt(process.env.DESIRED_TEST_ARTICLES, 10);
 
-async function loadArticles(page, amount = desiredTestArticles) {
+export async function loadArticles(page, amount = desiredTestArticles, waitTime = 2500) {
   var allArticles = [];
   var neededArticles = amount - allArticles.length; 
   while (neededArticles > 0) {
     // Make sure loaded
-    await page.waitForSelector('.athing');
+    try {
+      await page.waitForSelector('.athing', { timeout: 20000 });
+    } catch {
+      throw new Error('CANNOT FIND ARTICLES/THINGS');
+    }
     // Add new articles
     const newArticles = await page.$$eval('.athing', (articles, neededArticles) =>
       articles.slice(0, neededArticles).map(article => {
@@ -25,18 +27,19 @@ async function loadArticles(page, amount = desiredTestArticles) {
       neededArticles
     );
     newArticles.map(article => allArticles.push(article))
-    // Click the "More" button to load more articles
-    await page.click('.morelink');
-    // Wait a bit to make sure we don't send too many requests too quickly
-    await page.waitForTimeout(500);
     neededArticles = amount - allArticles.length
-    console.log(`${neededArticles}`)
+    if (neededArticles > 0) { // Only try to load more if we know we're going through the loop again
+      // Click the "More" button to load more articles
+      await page.click('.morelink');
+      // Wait a bit to make sure we don't send too many requests too quickly
+      await page.waitForTimeout(waitTime);
+    } 
   }
   
   return allArticles;
 }
 
-async function sortHackerNewsArticles(url = desiredTestURL) {
+export async function sortHackerNewsArticles(url = desiredTestURL) {
   // launch browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
