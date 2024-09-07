@@ -12,6 +12,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+        DESIRED_TEST_URL: https://news.ycombinator.com/newest
+        DESIRED_TEST_ARTICLES: 100
+        
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -30,6 +34,4 @@ jobs:
 
     - name: Run Playwright tests
       run: npx playwright test
-      env:
-        DESIRED_TEST_URL: ${{ secrets.DESIRED_TEST_URL }}
-        DESIRED_TEST_ARTICLES: ${{ secrets.DESIRED_TEST_ARTICLES }}
+      
