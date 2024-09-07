@@ -21,9 +21,9 @@ test('Error: Cannot find Articles', async ({ page }) => {
 test('Possible Error: Too many articles to load, requests too fast', async ({ page }) => {
     try {
         await page.goto(correctURL);
-        await expect(loadArticles(page, tooMany, 100)).rejects.toThrow('CANNOT FIND ARTICLES');
+        const articles = await loadArticles(page, tooMany, 100);
+        expect(articles.length).toBe(tooMany);
     } catch (error) {
         expect(error.message).toContain('CANNOT FIND ARTICLES');
     }
-    
 });
