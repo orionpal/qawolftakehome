@@ -1,33 +1,41 @@
 // EDIT THIS FILE TO COMPLETE ASSIGNMENT QUESTION 1
 const { chromium } = require("playwright");
+require('dotenv').config();  // Load environment variables from .env
 
 const desiredTestURL = process.env.DESIRED_TEST_URL;
 const desiredTestArticles = parseInt(process.env.DESIRED_TEST_ARTICLES, 10);
 
-export async function loadArticles(page, amount = desiredTestArticles, waitTime = 2500) {
+const itemSelector = '.athing';
+
+async function loadArticles(page, amount = desiredTestArticles, waitTime = 2500) {
   var allArticles = [];
   var neededArticles = amount - allArticles.length; 
   while (neededArticles > 0) {
     // Make sure loaded
     try {
-      await page.waitForSelector('.athing', { timeout: 20000 });
+      await page.waitForSelector(itemSelector, { timeout: 20000 });
     } catch {
-      throw new Error('CANNOT FIND ARTICLES/THINGS');
+      throw new Error(`CANNOT FIND ARTICLES/THINGS. No selector ${itemSelector} on page.`);
     }
-    // Add new articles
-    const newArticles = await page.$$eval('.athing', (articles, neededArticles) =>
-      articles.slice(0, neededArticles).map(article => {
-        const timestampElement = article.nextElementSibling.querySelector('.age a');
-        console.log(`${neededArticles}`)
-        return {
-          title: article.querySelector('.titleline > a').innerText,
-          timestamp: timestampElement ? timestampElement.getAttribute('href').match(/(\d+)$/)[0] : null
-        };
-      }),
-      neededArticles
-    );
-    newArticles.map(article => allArticles.push(article))
-    neededArticles = amount - allArticles.length
+    try {
+      // Add new articles
+      const newArticles = await page.$$eval(itemSelector, (articles, neededArticles) =>
+        articles.slice(0, neededArticles).map(article => {
+          const timestampElement = article.nextElementSibling.querySelector('.age a');
+          return {
+            title: article.querySelector('.titleline > a').innerText,
+            timestamp: timestampElement ? timestampElement.getAttribute('href').match(/(\d+)$/)[0] : null
+          };
+        }),
+        neededArticles
+      );
+      newArticles.map(article => allArticles.push(article));
+    } catch {
+      throw new Error(`CANNOT FIND TIMESTAMPED ARTICLES. No selector '.age a' on page.`);
+    }
+    
+    
+    neededArticles = amount - allArticles.length;
     if (neededArticles > 0) { // Only try to load more if we know we're going through the loop again
       // Click the "More" button to load more articles
       await page.click('.morelink');
@@ -39,18 +47,18 @@ export async function loadArticles(page, amount = desiredTestArticles, waitTime 
   return allArticles;
 }
 
-export async function sortHackerNewsArticles(url = desiredTestURL) {
+async function sortHackerNewsArticles(url = desiredTestURL) {
   // launch browser
   const browser = await chromium.launch({ headless: true }); // Changed headless to true for github actions
   const context = await browser.newContext();
   const page = await context.newPage();
 
   // 1. go to Hacker News
-  await page.goto(url).catch(() => { });
+  await page.goto(url)
   // 2. get 100 articles
   const articles = await loadArticles(page, desiredTestArticles);
   if (articles.length !== desiredTestArticles) {
-    console.log(`heyyyyy, this isn't 100 articles, this is ${articles.length}. Something may have went wrong with loading the articles`);
+    console.log(`heyyy, this isn't ${desiredTestArticles} articles, this is ${articles.length}! Something may have went wrong with loading the articles. Potential issues may be: requesting too many too fast; loading the wrong website;`);
     return false;
   }
 
@@ -73,6 +81,15 @@ export async function sortHackerNewsArticles(url = desiredTestURL) {
   return true
 }
 
-(async () => {
-  await sortHackerNewsArticles();
-})();
+// Export functions for use in tests
+module.exports = {
+  loadArticles,
+  sortHackerNewsArticles
+};
+
+// If this script is run directly, execute the sorting function
+if (require.main === module) {
+  (async () => {
+    await sortHackerNewsArticles();
+  })();
+}
