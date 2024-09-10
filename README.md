@@ -2,6 +2,7 @@
 
 Hello! My name is Orion Palaquibay, and I'm applying for a role at QA Wolf. This repository demonstrates a solution that validates whether the first 100 articles on Hacker News are sorted from newest to oldest using Playwright.
 
+qa wolf is awesome :)
 
 ---
 
