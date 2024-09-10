@@ -2,6 +2,7 @@
 
 Hello! My name is Orion Palaquibay, and I'm applying for a role at QA Wolf. This repository demonstrates a solution that validates whether the first 100 articles on Hacker News are sorted from newest to oldest using Playwright.
 
+
 ---
 
 ## How to Run the Project
@@ -40,6 +41,18 @@ The Playwright tests include:
 1. Sanity Checks: Ensures that we can connect to Hacker News.
 2. Article Loading: Ensures we can load articles or return an error if we can't.
 3. Sorting Validation: Function correctly returns true/false based on Articles being sorted.
+
+_note:_ The config was changed to include a single retry attempt on local run because I was running into an issue where one test would randomly fail, but on a single retry I have yet to have both attempts fail.
+
+The browsers enabled are:
+- Chromium
+- Google Chrome
+- Firefox
+- Safari (webkit)
+- Mobile Chrome
+- Mobile Safari
+
+_note:_ microsoft edge is not enabled because I don't want to download it for my macbook. The other mobile browsers were enabled because I saw that your company recently launched mobile app testing!
 
 ### Testing Environment Variables
 
