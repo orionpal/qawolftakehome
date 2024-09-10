@@ -14,26 +14,27 @@ async function loadArticles(page, amount = desiredTestArticles, waitTime = 1248)
     // Make sure loaded
     try {
       await page.waitForSelector(itemSelector, { timeout: 15000 });
-    } catch {
+    } catch (error) {
+      console.log(error)
       throw new Error(`TIMEOUT: Possible Issue: Can't find articles. No selector ${itemSelector} on page.`);
     }
     try {
       // Add new articles
       const newArticles = await page.$$eval(itemSelector, (articles, neededArticles) =>
         articles.slice(0, neededArticles).map(article => {
-          const timestampElement = article.nextElementSibling.querySelector('.age a');
+          const timestampElement = article.nextElementSibling.querySelector('.age');
           return {
             title: article.querySelector('.titleline > a').innerText,
-            timestamp: timestampElement ? timestampElement.getAttribute('href').match(/(\d+)$/)[0] : null
+            timestamp: timestampElement ? new Date(timestampElement.getAttribute('title')) : null
           };
         }),
         neededArticles
       );
       newArticles.map(article => allArticles.push(article));
-    } catch {
-      throw new Error(`CANNOT FIND TIMESTAMPED ARTICLES. No selector '.age a' on page.`);
+    } catch (error){
+      console.log(error);
+      throw new Error(`CANNOT FIND TIMESTAMPED ARTICLES. No selector '.age' on page.`);
     }
-    
     
     neededArticles = amount - allArticles.length;
     if (neededArticles > 0) { // Only try to load more if we know we're going through the loop again
@@ -59,8 +60,8 @@ async function sortHackerNewsArticles(page, url = desiredTestURL) {
 
   // 3. Validate that the articles are sorted from newest to oldest
   for (let i = 0; i < articles.length - 1; i++) {
-    const currentTimestamp = parseInt(articles[i].timestamp, 10);
-    const nextTimestamp = parseInt(articles[i + 1].timestamp, 10);
+    const currentTimestamp = articles[i].timestamp ? articles[i].timestamp.getTime() : null; // Null so we get an error if we can't load timestamps
+    const nextTimestamp = articles[i + 1].timestamp ? articles[i + 1].timestamp.getTime() : null;
 
     if (currentTimestamp < nextTimestamp) {
       console.log(`Articles are not sorted correctly: 
