@@ -1,49 +1,72 @@
-# Introduction
-Hello! My name is Orion Palaquibay and I'm applying for a role at QA wolf! In this document I explain a bit about my solution and provide the desired information.
+# Hacker News Article Validation with Playwright
 
-1. Country/State = USA/New York
+Hello! My name is Orion Palaquibay, and I'm applying for a role at QA Wolf. This repository demonstrates a solution that validates whether the first 100 articles on Hacker News are sorted from newest to oldest using Playwright.
 
-2. Found job through handshake
+---
 
-## Question 1: Using Playright, validate that EXACTLY the first 100 articles are sorted from newest to oldest
+## How to Run the Project
 
-### To Run
-You have three options:
-1. run the index.js file directly
-    - ```npm i```
-    - ```node index.js```
-2. run the playwright tests and view the results
-    - ```npm i```
-    - ```npx playwright test```
-    - ```npx playwright show-report```
-3. push changes to github and view tests through the automated github actions
+You have three options for running this solution:
 
-### flow for validation
-1. go to website
-2. get 100 articles
-3. validate that upload date is in descending order (newest -> oldest)
+### 1. Running the `index.js` File Directly
 
-### Utilizing PlayWright Tests:
-1. Sanity tests for making sure we can connect to hackernews
-2. tests for making sure we can load articles, and that we expect an error if we can't
-3. tests for checking if articles are sorted and returning appropriate true/false
+```bash
+npm i
+node index.js
+```
+### 2. Running Playwright Tests and Viewing the Results
 
-## Structure
-#### Main functions:
+```bash
+npm i
+npx playwright test
+npx playwright show-report
+```
+
+### 3. Automated Testing via GitHub Actions
+
+Push your changes to the repository, and GitHub Actions will automatically run the tests.
+
+---
+
+## Solution Flow for Validation
+- **Step 1:** _Navigation_: Navigate to Hacker News Newest Articles.
+- **Step 2:** _Collection_: Collect the first 100 articles across multiple pages.
+- **Step 3:** _Validate Sorting_: Check if the articles are sorted in descending order by upload date.
+
+### Utilizing Playwright Tests
+
+The Playwright tests include:
+
+1. Sanity Checks: Ensures that we can connect to Hacker News.
+2. Article Loading: Ensures we can load articles or return an error if we can't.
+3. Sorting Validation: Function correctly returns true/false based on Articles being sorted.
+
+### Testing Environment Variables
+
+The following environment variables can be adjusted for testing:
+
+    DESIRED_TEST_ARTICLES: The number of articles to load (default: 100).
+    DESIRED_TEST_URL: The Hacker News URL (default: https://news.ycombinator.com/newest).
+
+### Project Structure
+#### Main Functions
+
 - loadArticles(page, amount = desiredTestArticles, waitTime = 2500)
-    - because of the structure of Hacker News pages, each page only holds 30 articles. for any amount > 30 we need to click the "more" button, and the waitTime is how much time to wait before clicking the button again. The wait time is necessary because the page can error out if you try too many times too quickly
-- sortHackerNewsArticles(url = desiredTestURL)
+    - Loads articles from Hacker News, with a wait time between page loads to avoid errors caused by too many rapid requests.
+- sortHackerNewsArticles(url)
+    - Validates that the articles are sorted from newest to oldest. Defaults to environment variable URL
 
-#### Testing:
-- Environment variables (for easy changing to the tests):
-    - desiredTestArticles = 100
-    - desiredTestURL = https://news.ycombinator.com/newest
-- Tests:
-    - load-website
-        - Sanity check for making sure we're online and the site is online
-    - load-articles
-        - Make sure we don't have issues loading articles, and that we expect an error if we can't load them
-    - sorted-articles
-        - Make sure we appropriately return true/false if the desired number of articles (100) are sorted
-- Automation
-    - After looking up the tech stach for QA wolf, I saw that github actions was used. I implemented a simple github action to run the playwright tests on push/pull of this repo
+#### Added Test Files
+- load-website.spec.js
+- load-articles.spec.js
+- sorted-articles.spec.js
+
+### Automation with GitHub Actions
+
+I’ve implemented a GitHub Actions workflow to automatically run the Playwright tests on every push or pull request. This setup ensures the tests are continuously validated, aligning with the technology stack QA Wolf uses.
+
+View the Results: After pushing to the repository, the tests will run automatically, and you can view the results by following the GitHub Actions page.
+
+### Conclusion
+
+This solution demonstrates my ability to set up end-to-end testing and automation using Playwright, validating real-world content in a structured, repeatable manner.

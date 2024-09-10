@@ -15,15 +15,15 @@ test('Articles load correctly', async ({ page }) => {
 
 test('Error: Cannot find Articles', async ({ page }) => {
     await page.goto(noArticlesURL);
-    await expect(loadArticles(page, correctNumberOfArticles)).rejects.toThrow('CANNOT FIND ARTICLES');
+    await expect(loadArticles(page, correctNumberOfArticles)).rejects.toThrow('TIMEOUT: Possible Issue:');
 });
 
 test('Possible Error: Too many articles to load, requests too fast', async ({ page }) => {
     try {
         await page.goto(correctURL);
-        const articles = await loadArticles(page, tooMany, 100);
+        const articles = await loadArticles(page, tooMany, 1);
         expect(articles.length).toBe(tooMany);
     } catch (error) {
-        expect(error.message).toContain('CANNOT FIND ARTICLES');
+        expect(error.message).toContain('TIMEOUT: Possible Issue:');
     }
 });

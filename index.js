@@ -7,15 +7,15 @@ const desiredTestArticles = parseInt(process.env.DESIRED_TEST_ARTICLES, 10);
 
 const itemSelector = '.athing';
 
-async function loadArticles(page, amount = desiredTestArticles, waitTime = 2500) {
+async function loadArticles(page, amount = desiredTestArticles, waitTime = 1248) {
   var allArticles = [];
   var neededArticles = amount - allArticles.length; 
   while (neededArticles > 0) {
     // Make sure loaded
     try {
-      await page.waitForSelector(itemSelector, { timeout: 20000 });
+      await page.waitForSelector(itemSelector, { timeout: 15000 });
     } catch {
-      throw new Error(`CANNOT FIND ARTICLES/THINGS. No selector ${itemSelector} on page.`);
+      throw new Error(`TIMEOUT: Possible Issue: Can't find articles. No selector ${itemSelector} on page.`);
     }
     try {
       // Add new articles
@@ -47,12 +47,7 @@ async function loadArticles(page, amount = desiredTestArticles, waitTime = 2500)
   return allArticles;
 }
 
-async function sortHackerNewsArticles(url = desiredTestURL) {
-  // launch browser
-  const browser = await chromium.launch({ headless: true }); // Changed headless to true for github actions
-  const context = await browser.newContext();
-  const page = await context.newPage();
-
+async function sortHackerNewsArticles(page, url = desiredTestURL) {
   // 1. go to Hacker News
   await page.goto(url)
   // 2. get 100 articles
@@ -76,10 +71,12 @@ async function sortHackerNewsArticles(url = desiredTestURL) {
 
   console.log("The first 100 articles are correctly sorted from newest to oldest.");
 
-  // Close browser
-  await browser.close();
+
   return true
 }
+
+// launch browser
+
 
 // Export functions for use in tests
 module.exports = {
@@ -90,6 +87,11 @@ module.exports = {
 // If this script is run directly, execute the sorting function
 if (require.main === module) {
   (async () => {
-    await sortHackerNewsArticles();
+    const browser = await chromium.launch({ headless: false });
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await sortHackerNewsArticles(page);
+    // // Close browser
+    await browser.close();
   })();
 }
